@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="96" viewBox="0 0 440 96">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2ea043"/>
+      <stop offset="1" stop-color="#1a7f37"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="436" height="92" rx="18" fill="url(#g)" stroke="#116329" stroke-width="2"/>
+  <g transform="translate(46 48)" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 -20 V8"/>
+    <path d="M-11 -3 L0 8 L11 -3"/>
+    <path d="M-16 20 H16"/>
+  </g>
+  <text x="84" y="46" fill="#ffffff" font-family="'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif" font-size="27" font-weight="700">Windows용 다운로드</text>
+  <text x="85" y="74" fill="#d2f4dc" font-family="'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif" font-size="16">EXE 파일 하나 · 설치·Python 필요 없음</text>
+</svg>
