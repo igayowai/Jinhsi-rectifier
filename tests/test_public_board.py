@@ -4,7 +4,8 @@ from unittest import TestCase
 from unittest.mock import patch
 from urllib.error import HTTPError
 
-from rectifier.public_board import MAX_HTML_BYTES, NoRedirect, PublicReadError, read_public_board
+from rectifier.public_board import (MAX_HTML_BYTES, NoRedirect, PublicReadError, PublicServerError,
+                                    read_public_board)
 
 
 class Response(BytesIO):
@@ -40,6 +41,14 @@ class PublicBoardTests(TestCase):
                 with self.assertRaises(PublicReadError):
                     read_public_board("mnt", 1)
                 builder.return_value.open.assert_called_once()
+
+    def test_only_5xx_is_reported_as_server_outage(self):
+        for status, outage in ((429, False), (403, False), (500, True), (504, True)):
+            with self.subTest(status=status), patch("rectifier.public_board.build_opener") as builder:
+                builder.return_value.open.side_effect = HTTPError("https://gall.dcinside.com", status, "raw", {}, None)
+                with self.assertRaises(PublicReadError) as caught:
+                    read_public_board("mnt", 1)
+                self.assertIs(isinstance(caught.exception, PublicServerError), outage)
 
     def test_redirects_never_follow(self):
         self.assertIsNone(NoRedirect().redirect_request(None, None, 302, "", {}, "https://other.test"))

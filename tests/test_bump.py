@@ -152,6 +152,16 @@ class BumpTests(TestCase):
                                (302, 'response_unknown'), (500, 'response_unknown')):
             self.assertEqual(assess_bump_response(response(SUCCESS, status)), reason)
 
+    def test_page_read_5xx_is_server_error_but_post_5xx_stays_unknown(self):
+        adapter = BumpAdapter(self.login, TARGET, ACCOUNT, clock=self.clock)
+        for status, reason in ((504, 'server_error'), (500, 'server_error'), (404, 'read_failed')):
+            with self.subTest(status=status):
+                self.session.request = Mock(return_value=response('', status))
+                with self.assertRaises(BumpStopped) as caught:
+                    adapter._get(TARGET.list_url, self.cancel, self.clock() + 10)
+                self.assertEqual(str(caught.exception), reason)
+        self.assertEqual(assess_bump_response(response(SUCCESS, 504)), 'response_unknown')
+
     def test_exact_payload_sequential_limit_and_one_shot_runner(self):
         stats, runner = self.run_bumps()
         self.assertEqual((stats.requests, stats.acknowledged, stats.stopped), (4, 4, 'request_limit'))

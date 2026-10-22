@@ -140,8 +140,9 @@ class ListDefenseAdapter:
             raise DefenseReadError('read_failed') from None
         self._check_cancel(cancel)
         if response.status != 200:
+            # 5xx is DCInside's own failure (504 = its gateway timed out), not the user's network.
             reason = {401: 'auth_required', 403: 'forbidden', 429: 'rate_limited'}.get(
-                response.status, 'read_failed')
+                response.status, 'server_error' if response.status >= 500 else 'read_failed')
             raise DefenseReadError(reason)
         if not response.body.strip():
             # HTTP 200 with no document cannot establish account or permission.

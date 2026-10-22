@@ -6,7 +6,7 @@ from time import perf_counter
 from .models import validate_gallery
 from .parser import BoardParseError, ListEntry, PostKind, parse_board_entries
 from .policy import preview_page_items
-from .public_board import PublicReadError, read_public_board
+from .public_board import PublicReadError, PublicServerError, read_public_board
 
 
 MAX_PREVIEW_PAGES = 5  # Prototype read bound, not a server limit.
@@ -82,6 +82,8 @@ def preview_pages(gallery_id, account_id, pages, *, reader=None):
         try:
             html = reader(gallery_id, page)
             parsed = parse_board_entries(html, gallery_id)
+        except PublicServerError:
+            stopped = 'server_error'
         except PublicReadError:
             stopped = 'public_read_failed'
         except BoardParseError:

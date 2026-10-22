@@ -6,7 +6,7 @@ from unittest.mock import Mock, call, patch
 
 from rectifier.__main__ import main
 from rectifier.page_preview import preview_pages
-from rectifier.public_board import PublicReadError
+from rectifier.public_board import PublicReadError, PublicServerError
 from tests.test_parser import board, post_row
 
 
@@ -71,6 +71,13 @@ class MultiPagePreviewTests(TestCase):
         self.assertFalse(r['requested_pages_completed'])
         self.assertEqual(r['stopped'], 'public_read_failed')
         self.assertNotIn('private upstream text', json.dumps(r))
+
+    def test_server_outage_is_reported_separately_from_network_failure(self):
+        reader = Mock(side_effect=[board(row(1)), PublicServerError('HTTP 504')])
+        r = preview_pages('fixture', 'synthetic', [1, 2, 3], reader=reader)
+        self.assertEqual([p['status'] for p in r['page_results']], ['read', 'failed', 'not_requested'])
+        self.assertEqual(r['page_results'][1]['reason'], 'server_error')
+        self.assertEqual(r['stopped'], 'server_error')
 
     def test_failed_first_page_is_not_successful_empty_result(self):
         reader = Mock(side_effect=PublicReadError('HTTP 429'))

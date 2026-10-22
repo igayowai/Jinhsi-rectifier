@@ -48,6 +48,25 @@ class EmptyManagementTests(TestCase):
         runner = DefenseRunner(ListDefenseAdapter(self.login, 'mnt'), after_post_id=1)
         self.assertEqual(runner.step().stopped, 'forbidden')
 
+    def test_dcinside_5xx_is_server_error_not_user_network(self):
+        for status in (500, 502, 503, 504):
+            with self.subTest(status=status):
+                self.session.reset_mock()
+                self.session.request.side_effect = [response(MENU), response('<html>Gateway Time-out</html>', status)]
+                runner = DefenseRunner(ListDefenseAdapter(self.login, 'mnt'), after_post_id=1)
+                self.assertEqual(runner.step().stopped, 'server_error')
+                self.assertEqual(runner.stats.requests, 0)
+
+    def test_ui_reports_server_outage_as_list_failure(self):
+        ui = Mock()
+        ui.delete_messages = Queue()
+        ui.delete_messages.put(('permission', ('mnt', 'server_error')))
+        ManagerUI._poll_delete(ui)
+        message = ui.permission_status.set.call_args.args[0]
+        self.assertIn('목록 조회 실패', message)
+        self.assertIn('서버 장애', message)
+        self.assertNotIn('인터넷', message)
+
     def test_ui_does_not_report_missing_permission_for_empty_page(self):
         ui = Mock()
         ui.delete_messages = Queue()

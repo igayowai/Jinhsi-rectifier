@@ -17,7 +17,7 @@ _WRITE_LOCK = Lock()
 STAGES = frozenset({'account', 'list', 'delete', 'snapshot', 'selection'})
 RESULTS = frozenset({'not_sent', 'success_reported', 'rejection_reported', 'unknown'})
 REASONS = frozenset({'user_stopped', 'auth_required', 'forbidden', 'rate_limited',
-    'quota_exhausted', 'read_failed', 'empty_response', 'invalid_listing',
+    'quota_exhausted', 'read_failed', 'server_error', 'empty_response', 'invalid_listing',
     'stale_listing', 'scope_mismatch', 'selection_changed', 'rejection_reported',
     'preparation_failed', 'already_used', 'response_unknown'})
 

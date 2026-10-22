@@ -80,7 +80,8 @@ class DefenseFlow:
 
     def stop(self, reason='user_stopped'):
         if reason not in {'user_stopped', 'auth_required', 'forbidden', 'rate_limited',
-                          'quota_exhausted', 'read_failed', 'empty_response', 'storage_failed',
+                          'quota_exhausted', 'read_failed', 'server_error', 'empty_response',
+                          'storage_failed',
                           'stale_listing', 'invalid_listing', 'scope_mismatch',
                           'rejection_reported'}:
             raise ValueError('방어 중지 사유 오류')

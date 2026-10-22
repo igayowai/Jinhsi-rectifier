@@ -13,6 +13,10 @@ class PublicReadError(RuntimeError):
     pass
 
 
+class PublicServerError(PublicReadError):
+    """DCInside answered 5xx: its own outage, not the user's network."""
+
+
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
@@ -48,6 +52,8 @@ def _read_public_html(url):
     except HTTPError as error:
         code = error.code
         error.close()
+        if code >= 500:
+            raise PublicServerError(f"HTTP {code}: 디시 서버 장애, 자동 재시도 없음") from None
         raise PublicReadError(f"HTTP {code}: 조회 중지, 자동 재시도 없음") from None
     except (URLError, TimeoutError, OSError, UnicodeError, LookupError):
         raise PublicReadError("목록 조회 실패; 로그인·권한·네트워크 또는 인코딩 확인 필요") from None

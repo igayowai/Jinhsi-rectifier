@@ -222,7 +222,8 @@ class BumpAdapter:
             record_error('bump._get')
             raise BumpStopped('read_failed') from None
         if response.status != 200 or not isinstance(response.body, str):
-            raise BumpStopped(_http_stop(response.status) or 'read_failed')
+            raise BumpStopped(_http_stop(response.status)
+                              or ('server_error' if response.status >= 500 else 'read_failed'))
         return response.body
 
     def prepare(self, cancel, deadline):

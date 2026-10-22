@@ -16,6 +16,7 @@ from rectifier.defense_task import TaskState
 from rectifier.dpi import apply_theme
 from rectifier.manager_ui import ManagerUI
 from rectifier.page_preview import preview_pages
+from rectifier.public_board import PublicServerError
 from tests.test_account_manual import ACCOUNT
 from tests.common import listing
 
@@ -60,6 +61,17 @@ class ManagerUITests(TestCase):
     def authenticate(self):
         self.ui.login_result = self.login
         self.ui._delete_state(None)
+
+    def test_list_query_names_dcinside_outage(self):
+        def reader(gallery, page):
+            if page == 2:
+                raise PublicServerError('HTTP 504')
+            return listing()
+        generation = self.ui.model.begin('mnt', (1, 2))
+        self.ui.messages.put((generation, preview_pages('mnt', 'ui_preview', (1, 2), reader=reader)))
+        self.ui._poll_query()
+        self.assertIn('일부 조회', self.ui.status.get())
+        self.assertIn('서버 장애', self.ui.detail.get())
 
     def test_open_is_inert_and_no_hardcoded_account(self):
         self.assertEqual(self.ui.account_text.get(), '')

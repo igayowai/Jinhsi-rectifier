@@ -566,8 +566,10 @@ class ManagerUI:
             state = "조회 완료" if complete else ("일부 조회 · 나머지 실패" if read_count else "조회 실패")
             self.status.set(f"{state} · {read_count}/{len(self.model.pages)}페이지 · {result['elapsed_ms']:.0f} ms")
             labels = {"read": "완료", "failed": "실패", "not_requested": "미조회"}
+            server_down = any(p.get("reason") == "server_error" for p in result["page_results"])
             self.detail.set(" / ".join(f"{p['page']}페이지 {labels[p['status']]}" for p in result["page_results"])
-                            + " · 조회 중 새 글이 밀리면 누락될 수 있음")
+                            + (" · 디시 서버가 응답하지 않음(서버 장애) · 잠시 뒤 다시 조회하세요" if server_down
+                               else " · 조회 중 새 글이 밀리면 누락될 수 있음"))
         except (ValueError, KeyError, TypeError):
             self.model.invalidate()
             self.status.set("조회 실패 · 다시 조회하거나 입력 범위를 확인하세요")
@@ -1049,7 +1051,7 @@ class ManagerUI:
         elif kind == 'permission':
             gallery, reason = payload
             self._delete_state(None)
-            prefix = '목록 조회 실패 · ' if reason == 'empty_response' else '권한 확인 실패 · '
+            prefix = '목록 조회 실패 · ' if reason in {'empty_response', 'server_error'} else '권한 확인 실패 · '
             self.permission_status.set(f'{gallery} 관리 삭제 권한 확인됨' if reason is None else
                                        prefix + REASONS.get(reason, '다시 확인 필요'))
         elif kind == 'manual':
