@@ -133,7 +133,13 @@ class ParserTests(unittest.TestCase):
                   '<td class="gall_subject">AD</td><td class="gall_tit ub-word">'
                   '<a href="https://invalid.example/synthetic-ad">synthetic ad</a></td>'
                   '<td class="gall_writer ub-writer">synthetic service label</td></tr>')
-        posts = parse_board(board(survey, advert, post_row()), "fixture")
+        # DCInside-wide operator notice, shown above every gallery's list (2026-10-22).
+        notice = ('<tr class="ub-content "><td class="gall_num" style="height:25px;">-</td>'
+                  '<td class="gall_subject"><b>공지</b></td><td class="gall_tit ub-word">'
+                  '<a href="http://gall.dcinside.com/list.php?id=know&amp;no=1&amp;page=1" target="_blank">'
+                  '<em class="icon_img icon_notice"></em><b>[공지] synthetic operator notice</b></a></td>'
+                  '<td class="gall_writer ub-writer" user_name="운영자"><b>운영자</b></td></tr>')
+        posts = parse_board(board(survey, notice, advert, post_row()), "fixture")
         self.assertEqual(len(posts), 1)
         self.assertEqual(posts[0].post_id, 101)
         self.assertEqual(posts[0].author_kind, AuthorKind.GUEST)

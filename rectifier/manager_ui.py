@@ -461,7 +461,7 @@ class ManagerUI:
         self._query_controls()
         if self.defense_window is not None and not getattr(self.defense_window, 'closed', True):
             try:
-                text = self.gallery.get().strip()
+                text = self.gallery.get().strip().lower()
                 gallery = validate_gallery(GALLERIES.get(text, text))
                 self.defense_window.gallery = gallery
                 if hasattr(self.defense_window, 'scope_label'):
@@ -498,7 +498,7 @@ class ManagerUI:
         self.model.invalidate()
         self._render()
         try:
-            gallery_text = self.gallery.get().strip()
+            gallery_text = self.gallery.get().strip().lower()
             gallery = validate_gallery(GALLERIES.get(gallery_text, gallery_text))
             pages = parse_pages(self.pages.get())
             generation = self.model.begin(gallery, pages)
@@ -872,7 +872,7 @@ class ManagerUI:
         return True
 
     def _scope(self):
-        text = self.gallery.get().strip()
+        text = self.gallery.get().strip().lower()
         return validate_gallery(GALLERIES.get(text, text)), parse_pages(self.pages.get())
 
     def check_permission(self):
@@ -1109,7 +1109,7 @@ class ManagerUI:
         if self.closed or self.busy or self.delete_phase is not None or not self._require_login():
             return False
         try:
-            text = self.gallery.get().strip()
+            text = self.gallery.get().strip().lower()
             gallery = validate_gallery(GALLERIES.get(text, text))
         except ValueError:
             self.status.set('갤러리 입력 확인 필요')
@@ -1168,7 +1168,7 @@ class ManagerUI:
     def _ensure_defense_window(self, gallery=None):
         if gallery is None:
             try:
-                text = self.gallery.get().strip()
+                text = self.gallery.get().strip().lower()
                 gallery = validate_gallery(GALLERIES.get(text, text))
             except ValueError:
                 gallery = 'mnt'
@@ -1193,7 +1193,7 @@ class ManagerUI:
         if self.closed or self.busy or self.delete_phase or not self._require_login():
             return
         try:
-            text = self.gallery.get().strip()
+            text = self.gallery.get().strip().lower()
             gallery = validate_gallery(GALLERIES.get(text, text))
         except ValueError:
             self.status.set('갤러리 입력 확인 필요')

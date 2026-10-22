@@ -238,14 +238,15 @@ def _parse_row(row: _Node, gallery_id: str) -> Post | None:
     number = numbers[0].text().strip()
     if number in _SPECIAL_NUMBERS or row.attrs.get("data-type") in _SPECIAL_TYPES:
         return None
-    # Public PC lists also put a survey and an advertisement above normal rows:
-    # gall_num='-', gall_subject='설문'/'AD', class='ub-content', no post attrs.
+    # Public PC lists also put a survey, an advertisement and DCInside-wide
+    # operator notices above normal rows: gall_num='-',
+    # gall_subject='설문'/'AD'/'공지', class='ub-content', no post attrs.
     # Do not treat arbitrary nonnumeric rows, normal posts or unknown subjects
     # as this shape, and never inspect/follow their external action links.
     if number == "-" and row.classes == {"ub-content"} and set(row.attrs) == {"class"}:
         subjects = [cell for cell in cells if "gall_subject" in cell.classes]
         if (len(subjects) == 1 and not subjects[0].bad_attrs
-                and subjects[0].text().strip() in {"설문", "AD"}):
+                and subjects[0].text().strip() in {"설문", "AD", "공지"}):
             return None
     if not _NUMBER.fullmatch(number):
         raise BoardParseError("일반 글의 번호 형식이 잘못됨")
